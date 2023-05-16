@@ -9,7 +9,11 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:extension.registerProblem",
+    "onCommand:extension.testSampleCase",
+    "onStartupFinished"
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [{
@@ -18,9 +22,7 @@
     }]
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "node ./test/runTest.js"
+    "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
     "@types/vscode": "^1.78.0",

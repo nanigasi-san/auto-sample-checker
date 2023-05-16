@@ -1,36 +1,71 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const { exec } = require('child_process');
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+let state = '待機中';
+let url = '';
 
-/**
- * @param {vscode.ExtensionContext} context
- */
 function activate(context) {
+	// 拡張が有効になったときに実行されるコード
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "auto-sample-checker" is now active!');
+	// 状態が「待機中」のときの処理
+	if (state === '待機中') {
+		// "register problem" ボタンを作成し、クリックイベントを設定する
+		const registerProblemButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+		registerProblemButton.text = '$(rocket) Register Problem';
+		registerProblemButton.command = 'extension.registerProblem';
+		registerProblemButton.show();
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('auto-sample-checker.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+		// "register problem" ボタンがクリックされたときの処理
+		context.subscriptions.push(vscode.commands.registerCommand('extension.registerProblem', () => {
+			// テキストボックスと submit ボタンを表示する
+			vscode.window.showInputBox({ prompt: 'Enter the URL:' }).then((input) => {
+				if (input) {
+					url = input;
+					executeCommand(`C://Users/kaito/auto-sample-checker/s.bat ${url}`);
+					state = '実装中';
+					updateStatusBarButton();
+				}
+			});
+		}));
+	}
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from auto_sample_checker!');
-	});
+	// "test sample case" ボタンを作成し、クリックイベントを設定する
+	const testSampleCaseButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+	testSampleCaseButton.text = '$(play) Test Sample Case';
+	testSampleCaseButton.command = 'extension.testSampleCase';
+	// testSampleCaseButton.show();
 
-	context.subscriptions.push(disposable);
+	// "test sample case" ボタンがクリックされたときの処理
+	context.subscriptions.push(vscode.commands.registerCommand('extension.testSampleCase', () => {
+		if (state === '実装中') {
+			executeCommand(`C://Users/kaito/auto-sample-checker/r.bat ${url}`);
+		}
+	}));
+
+	// ステータスバーのボタンの表示を更新する関数
+	function updateStatusBarButton() {
+		if (state === '実装中') {
+			testSampleCaseButton.show();
+		} else {
+			testSampleCaseButton.hide();
+		}
+	}
+
+	// コマンドを実行する関数
+	function executeCommand(command) {
+		exec(command, (error, stdout, stderr) => {
+			if (error) {
+				console.log(`${stderr}`);
+				console.error(`Error executing command: ${command}`);
+				return;
+			}
+			vscode.window.showInformationMessage(stdout)
+			// if (stdout.includes('SUCCESS')) {
+			// 	vscode.window.showInformationMessage('Test passed');
+			// } else {
+			// 	vscode.window.showWarningMessage(state);
+			// }
+		});
+	}
 }
-
-// This method is called when your extension is deactivated
-function deactivate() {}
-
-module.exports = {
-	activate,
-	deactivate
-}
+exports.activate = activate;
