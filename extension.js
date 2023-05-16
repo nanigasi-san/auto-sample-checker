@@ -22,8 +22,8 @@ function activate(context) {
 			vscode.window.showInputBox({ prompt: 'Enter the URL:' }).then((input) => {
 				if (input) {
 					url = input;
-					console.log(state);
-					executeCommand(`${__dirname}/d.bat ${url}`);
+					executeCommand(`rmdir /s /q cases`);
+					executeCommand(`oj download ${url} -d cases/`);
 					state = '実装中';
 					testSampleCaseButton.show();
 				}
@@ -39,7 +39,11 @@ function activate(context) {
 	// "test sample case" ボタンがクリックされたときの処理
 	context.subscriptions.push(vscode.commands.registerCommand('extension.testSampleCase', () => {
 		if (state === '実装中') {
-			executeCommand(`${__dirname}/t.bat ${url}`);
+			console.log('pushed test');
+			const current_file = vscode.window.activeTextEditor.document.uri.fsPath;
+			console.log(`now file: ${current_file}`);
+			console.log(__dirname, __filename, process.cwd());
+			executeCommand(`oj test -c \"python ${path.resolve(current_file)}\" -d cases/`);
 		}
 	}));
 
@@ -47,17 +51,20 @@ function activate(context) {
 	function executeCommand(command) {
 		exec(command, (error, stdout, stderr) => {
 			if (error) {
-				console.error(`${stderr}`);
 				console.error(`Error executing command: ${command}`);
+				console.log(`[stdout]\n${stdout}\n-------------`);
+				console.error(`[stderr]\n${stderr}\n-------------`);
+				if (stdout.includes('test failed')) {
+					vscode.window.showErrorMessage("test missed");
+				} else {
+					vscode.window.showErrorMessage("Chimpo");
+				}
 				return;
 			}
-			vscode.window.showInformationMessage(stdout)
 			if (state === '実装中'){
-				console.log(stdout, state);
-				if (stdout.includes('OK')) {
+				console.log(stdout, stderr, state);
+				if (stdout.includes('test success')) {
 					vscode.window.showInformationMessage("test passed");
-				} else {
-					vscode.window.showInformationMessage("test missed");
 				}
 			}
 		});
