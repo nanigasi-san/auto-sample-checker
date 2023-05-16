@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 
 function activate(context) {
 	// 拡張が有効になったときに実行されるコード
+	let url = '';
 
 	// "register problem" ボタンを作成し、クリックイベントを設定する
 	const registerProblemButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
@@ -23,7 +24,6 @@ function activate(context) {
 
 	// "register problem" ボタンがクリックされたときの処理
 	context.subscriptions.push(vscode.commands.registerCommand('extension.registerProblem', () => {
-		let url = '';
 		testSampleCaseButton.hide();
 		submitCodeButton.hide();
 		// テキストボックスと submit ボタンを表示する
@@ -46,6 +46,13 @@ function activate(context) {
 		console.log(`now file: ${current_file}`);
 		console.log(__dirname, __filename, process.cwd());
 		executeCommand(`oj test -c \"python ${path.resolve(current_file)}\" -d cases/`);
+	}));
+
+
+	context.subscriptions.push(vscode.commands.registerCommand('extension.submitCode', () => {
+		const current_file = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath);
+		executeCommand(`oj submit -y ${url} ${current_file}`);
+		vscode.window.showInformationMessage('Submit this code')
 	}));
 
 	// コマンドを実行する関数
