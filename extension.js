@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 const { exec } = require('child_process');
 const path = require('path');
-
+const fs = require('fs-extra');
 
 function activate(context) {
 	// 拡張が有効になったときに実行されるコード
@@ -24,15 +24,13 @@ function activate(context) {
 	// "register problem" ボタンがクリックされたときの処理
 	context.subscriptions.push(vscode.commands.registerCommand('extension.registerProblem', () => {
 		let url = '';
-		let downloaded = false;
-		let passed = false;
 		testSampleCaseButton.hide();
 		submitCodeButton.hide();
 		// テキストボックスと submit ボタンを表示する
 		vscode.window.showInputBox({ prompt: 'Enter the URL:' }).then((input) => {
 			if (input) {
 				url = input;
-				executeCommand(`rmdir /s /q cases`);
+				fs.remove('cases')
 				executeCommand(`oj download ${url} -d cases/`);
 				vscode.window.showInformationMessage('Download sample cases.');
 				testSampleCaseButton.show();
@@ -52,24 +50,32 @@ function activate(context) {
 
 	// コマンドを実行する関数
 	function executeCommand(command) {
-		exec(command, (error, stdout, stderr) => {
-			if (error) {
-				console.error(`Error executing command: ${command}`);
-				console.log(`[stdout]\n${stdout}\n-------------`);
-				console.error(`[stderr]\n${stderr}\n-------------`);
-
-				if (stdout.includes('test failed')) {
-					vscode.window.showErrorMessage("Fail sample cases");
+		return new Promise((resolve, reject) => {
+			exec(command, (error, stdout, stderr) => {
+				if (error) {
+					console.error(`Error executing command: ${command}`);
+					console.log(`[stdout]\n${stdout}\n-------------`);
+					console.error(`[stderr]\n${stderr}\n-------------`);
+					if (stderr) {
+						vscode.window.showErrorMessage("Chimpo");
+						resolve(false); // エラーが発生した場合もfalseを返す	
+					}else if (stdout.includes('test failed')) {
+						vscode.window.showErrorMessage("Fail sample cases");
+						resolve(false); // テスト失敗の場合はfalseを返す
+					}
 				} else {
-					vscode.window.showErrorMessage("Chimpo");
+					console.log(stdout, stderr);
+					if (stdout.includes('test success')) {
+						vscode.window.showInformationMessage("Pass sample cases");
+						submitCodeButton.show();
+						resolve(true); // テスト成功の場合はtrueを返す
+					} else {
+						resolve(false); // テストが成功していない場合はfalseを返す
+					}
 				}
-			}
-			console.log(stdout, stderr);
-			if (stdout.includes('test success')) {
-				vscode.window.showInformationMessage("Pass sample cases");
-				submitCodeButton.show();
-			}
+			});
 		});
 	}
+
 }
 exports.activate = activate;
