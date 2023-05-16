@@ -10,9 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.registerProblem",
-    "onCommand:extension.testSampleCase",
-    "onStartupFinished"
+    "onLanguage:python"
   ],
   "main": "./extension.js",
   "contributes": {
