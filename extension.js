@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const { exec } = require('child_process');
+const path = require('path');
 
 let state = '待機中';
 let url = '';
@@ -22,7 +23,7 @@ function activate(context) {
 				if (input) {
 					url = input;
 					console.log(state);
-					executeCommand(`C://Users/kaito/auto-sample-checker/d.bat ${url}`);
+					executeCommand(`${__dirname}/d.bat ${url}`);
 					state = '実装中';
 					testSampleCaseButton.show();
 				}
@@ -38,7 +39,7 @@ function activate(context) {
 	// "test sample case" ボタンがクリックされたときの処理
 	context.subscriptions.push(vscode.commands.registerCommand('extension.testSampleCase', () => {
 		if (state === '実装中') {
-			executeCommand(`C://Users/kaito/auto-sample-checker/t.bat ${url}`);
+			executeCommand(`${__dirname}/t.bat ${url}`);
 		}
 	}));
 
