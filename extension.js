@@ -21,9 +21,10 @@ function activate(context) {
 			vscode.window.showInputBox({ prompt: 'Enter the URL:' }).then((input) => {
 				if (input) {
 					url = input;
-					executeCommand(`C://Users/kaito/auto-sample-checker/s.bat ${url}`);
+					console.log(state);
+					executeCommand(`C://Users/kaito/auto-sample-checker/d.bat ${url}`);
 					state = '実装中';
-					updateStatusBarButton();
+					testSampleCaseButton.show();
 				}
 			});
 		}));
@@ -33,38 +34,31 @@ function activate(context) {
 	const testSampleCaseButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 	testSampleCaseButton.text = '$(play) Test Sample Case';
 	testSampleCaseButton.command = 'extension.testSampleCase';
-	// testSampleCaseButton.show();
 
 	// "test sample case" ボタンがクリックされたときの処理
 	context.subscriptions.push(vscode.commands.registerCommand('extension.testSampleCase', () => {
 		if (state === '実装中') {
-			executeCommand(`C://Users/kaito/auto-sample-checker/r.bat ${url}`);
+			executeCommand(`C://Users/kaito/auto-sample-checker/t.bat ${url}`);
 		}
 	}));
-
-	// ステータスバーのボタンの表示を更新する関数
-	function updateStatusBarButton() {
-		if (state === '実装中') {
-			testSampleCaseButton.show();
-		} else {
-			testSampleCaseButton.hide();
-		}
-	}
 
 	// コマンドを実行する関数
 	function executeCommand(command) {
 		exec(command, (error, stdout, stderr) => {
 			if (error) {
-				console.log(`${stderr}`);
+				console.error(`${stderr}`);
 				console.error(`Error executing command: ${command}`);
 				return;
 			}
 			vscode.window.showInformationMessage(stdout)
-			// if (stdout.includes('SUCCESS')) {
-			// 	vscode.window.showInformationMessage('Test passed');
-			// } else {
-			// 	vscode.window.showWarningMessage(state);
-			// }
+			if (state === '実装中'){
+				console.log(stdout, state);
+				if (stdout.includes('OK')) {
+					vscode.window.showInformationMessage("test passed");
+				} else {
+					vscode.window.showInformationMessage("test missed");
+				}
+			}
 		});
 	}
 }
