@@ -57,7 +57,7 @@ function activate(context) {
 
 	// コマンドを実行する関数
 	function executeCommand(command) {
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			exec(command, (error, stdout, stderr) => {
 				if (error) {
 					console.error(`Error executing command: ${command}`);
