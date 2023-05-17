@@ -67,6 +67,9 @@ function activate(context) {
 						vscode.window.showErrorMessage("Chimpo");
 						resolve(false); // エラーが発生した場合もfalseを返す	
 					}else if (stdout.includes('test failed')) {
+						const outputChannel = vscode.window.createOutputChannel('test failed');
+						outputChannel.append(stdout);
+						outputChannel.show();
 						vscode.window.showErrorMessage("Fail sample cases");
 						resolve(false); // テスト失敗の場合はfalseを返す
 					}
