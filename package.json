@@ -2,7 +2,7 @@
   "name": "auto-sample-checker",
   "displayName": "auto_sample_checker",
   "description": "test atcoder samples",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "publisher": "nanigasisan",
   "repository": "https://github.com/nanigasi-san/auto-sample-checker",
   "icon": "icon.png",
