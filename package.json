@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "publisher": "nanigasisan",
   "repository": "https://github.com/nanigasi-san/auto-sample-checker",
-  "icon": "icon.png",
+  "icon": "https://github.com/nanigasi-san/auto-sample-checker/icon.png",
   "engines": {
     "vscode": "^1.78.0"
   },
